@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"@utils": ["./utils"],
+			"@utils/*": ["./utils/*"],
+			"@private/*": ["./private/*"]
+		},
+		"baseUrl": "./"
+	},
+	"references": [{ "path": "../secondary" }],
+	"extends": "../../tsconfig.json"
+}

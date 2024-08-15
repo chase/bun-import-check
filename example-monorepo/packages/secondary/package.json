@@ -1,0 +1,7 @@
+{
+	"name": "@org/secondary",
+	"private": true,
+	"type": "module",
+	"module": "index.ts",
+	"license": "MPL-2.0"
+}

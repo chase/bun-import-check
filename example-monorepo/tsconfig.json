@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"@primary/*": ["./packages/primary/*"],
+			"@utils": ["./packages/primary/utils"],
+			"@utils/*": ["./packages/primary/utils/*"],
+			"@secondary": ["./packages/secondary"],
+			"@secondary/*": ["./packages/secondary/*"]
+		}
+	}
+}
