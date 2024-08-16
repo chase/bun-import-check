@@ -41,7 +41,7 @@ function transpilerScanWithWarnPath(
 ): ReturnType<Transpiler['scanImports']> {
 	try {
 		return transpiler.scanImports(code);
-	} catch (e: any) {
+	} catch (e) {
 		console.log();
 		console.warn('Scanning error');
 		console.log(inspect(e, { colors: true }).replace(/input\.[jt]sx?/g, path));

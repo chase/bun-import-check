@@ -1,10 +1,15 @@
 {
 	"name": "bun-import-check",
 	"module": "src/index.ts",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"bin": "src/cli.ts",
 	"type": "module",
 	"license": "MPL-2.0",
+	"scripts": {
+		"format": "bun run --bun biome format --fix",
+		"lint": "bun run --bun biome lint",
+		"cli": "src/cli.ts"
+	},
 	"dependencies": {
 		"tsconfck": "^3.1.1"
 	},
