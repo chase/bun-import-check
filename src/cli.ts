@@ -202,7 +202,7 @@ async function watchForChanges() {
 		const tree = await findCycles(true);
 		const clear = watchDirectories(tree, () => {
 			resolveBlock();
-      clear();
+			clear();
 		});
 		await block;
 	}
