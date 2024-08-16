@@ -13,5 +13,11 @@ bun install
 ## Usage
 
 ```bash
+bunx chase/bun-import-check#HEAD ENTRY_POINT
+```
+
+Or when developing
+
+```bash
 ./src/cli.ts ENTRY_POINT
 ```
