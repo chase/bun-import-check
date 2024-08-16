@@ -26,6 +26,7 @@ const { positionals, values } = parseArgs({
 if (values.help || positionals.length !== 1) {
 	console.log(`Usage: ${basename(__filename)} [OPTION]... ENTRY_POINT`);
 	console.log('      --help       display this help and exit');
+	console.log('      --watch      watch for changes, press Ctrl+C to exit');
 	console.log();
 	console.log(
 		'Scans the dependency tree starting from the ENTRY_POINT file and reports all cycles',

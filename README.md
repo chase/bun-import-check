@@ -16,6 +16,12 @@ bun install
 bunx chase/bun-import-check#HEAD ENTRY_POINT
 ```
 
+For more information on usage, check `--help`
+
+```bash
+bunx chase/bun-import-check#HEAD --help
+```
+
 Or when developing
 
 ```bash
