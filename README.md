@@ -1,15 +1,17 @@
 # bun-import-check
 
-[Bun](https://bun.sh) is a fast all-in-one JavaScript runtime, go install that first.
+Checks dependency cycles in imports, supporting monorepos.
 
-To install dependencies:
+## Setup
+
+[Bun](https://bun.sh) is a fast all-in-one JavaScript runtime, go install that first.
 
 ```bash
 bun install
 ```
 
-To run:
+## Usage
 
 ```bash
-bun run src/cli.ts
+./src/cli.ts ENTRY_POINT
 ```

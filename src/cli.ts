@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { parseArgs, styleText } from 'node:util';
 import { basename, resolve, relative, join } from 'node:path';
 import { findWorkspaceRoot } from './resolver';
