@@ -1,4 +1,4 @@
-import { Transpiler, resolve as bunResolve } from 'bun';
+import { Transpiler, resolve as bunResolve, inspect } from 'bun';
 import { readFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative } from 'node:path';
 import { hasImport } from './import';
@@ -19,31 +19,68 @@ async function resolveRelative(path: string, importerPath: string) {
 	}
 }
 
-const transpiler = new Transpiler({
+const transpilerTsx = new Transpiler({
 	target: 'bun',
 	loader: 'tsx',
+	logLevel: 'error',
+	allowBunRuntime: false,
+	deadCodeElimination: false,
 });
+const transpilerTs = new Transpiler({
+	target: 'bun',
+	loader: 'ts',
+	logLevel: 'error',
+	allowBunRuntime: false,
+	deadCodeElimination: false,
+});
+
+function transpilerScanWithWarnPath(
+	transpiler: Transpiler,
+	path: string,
+	code: string,
+): ReturnType<Transpiler['scanImports']> {
+	try {
+		return transpiler.scanImports(code);
+	} catch (e: any) {
+		console.log();
+		console.warn('Scanning error');
+		console.log(inspect(e, { colors: true }).replace(/input\.[jt]sx?/g, path));
+		return [];
+	}
+}
+
 let resolversByDir: resolver.ResolversByDir;
 async function getImports(file: string): Promise<ImportInfo[]> {
 	// assume the first file's imports is the root of the dependency tree
 	if (!resolversByDir) {
 		resolversByDir = await resolver.getResolvers(dirname(file));
 	}
-	const content = readFileSync(file, { encoding: 'utf-8' });
+	if (file.includes('/node_modules/')) return [];
+
+	file = file.split(/[?#]/).at(0)!;
+	const match = file.match(resolver.SUPPORTED_EXTENSION_REGEX);
+	if (!match) return [];
+	const transpiler = match[1].endsWith('x') ? transpilerTsx : transpilerTs;
+
+	const content = readFileSync(file, {
+		encoding: 'utf-8',
+	});
 	return (
 		await Promise.all(
-			transpiler
-				.scanImports(content)
-				.map(async ({ path }) => [
+			transpilerScanWithWarnPath(transpiler, file, content).map(
+				async ({ path }) => [
 					path,
 					resolver.isAmbiguousPathOrId(path)
 						? await resolver.resolveAmbiguous(resolversByDir, path, file)
 						: isAbsolute(path)
 							? path
 							: await resolveRelative(path, file),
-				]),
+				],
+			),
 		)
-	).filter(([, resolved]) => resolved != null) as ImportInfo[];
+	).filter(
+		([, resolved]) => resolved != null && !resolved.includes('/node_modules/'),
+	) as ImportInfo[];
 }
 
 // biome-ignore lint/suspicious/noConstEnum: internal enum
@@ -80,8 +117,13 @@ export async function buildDependencyTreeAndDetectCycles(
 
 	async function pushToStack(file: string) {
 		if (!tree.has(file)) {
-			const imports = await getImports(file);
-			tree.set(file, { file, imports, status: NodeStatus.Unvisited });
+			try {
+				const imports = await getImports(file);
+				tree.set(file, { file, imports, status: NodeStatus.Unvisited });
+			} catch (e) {
+				tree.set(file, { file, imports: [], status: NodeStatus.Unvisited });
+				console.error(e);
+			}
 		}
 		const node = tree.get(file)!;
 		stack.push({ file, importIndex: 0 });
@@ -123,6 +165,8 @@ export type EnhancedImportInfo = {
 	originalImport: string;
 	lineNumber: number;
 	line: string;
+	contextLineBefore: string | undefined;
+	contextLineAfter: string | undefined;
 };
 
 export type EnhancedCycleInfo = {
@@ -194,6 +238,8 @@ function findImportLineInfo(
 				originalImport: originalImport,
 				lineNumber: i + 1,
 				line,
+				contextLineBefore: lines[i - 1],
+				contextLineAfter: lines[i + 1],
 			};
 		}
 	}

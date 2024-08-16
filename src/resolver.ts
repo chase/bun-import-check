@@ -212,7 +212,7 @@ function isExtendedTSConfig(config: TSConfig) {
 	return config.files?.length === 0 && config.include?.length === 0;
 }
 
-const SUPPORTED_EXTENSION_REGEX = /\.([mc]?[jt]sx?)$/;
+export const SUPPORTED_EXTENSION_REGEX = /\.([mc]?[jt]sx?)$/;
 const IMPORT_PARAMETERS = /\?.+$/;
 function createResolver(project: TSConfckParseResult): Resolver | null {
 	const configPath = normalize(project.tsconfigFile);

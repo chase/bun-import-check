@@ -33,13 +33,51 @@ const entryFile = resolve(process.cwd(), positionals[0]);
 const root = findWorkspaceRoot(entryFile);
 console.log('Workspace root:', join('./', relative(process.cwd(), root)));
 
+function printCodeLine(
+	number: number,
+	maxWidth: number,
+	line: string,
+	bad: boolean,
+	indent = 0,
+) {
+	const lineNumber = styleText(
+		'bold',
+		number.toString().padStart(maxWidth, ' '),
+	);
+	const indent_ = new Array(indent).fill('  ').join('');
+	const separator = ' │';
+	const prefix = `${bad ? '▸ ' : '  '}${lineNumber}${separator}`;
+	console.log(
+		`${indent_}${styleText(bad ? 'red' : 'gray', prefix)} ${bad ? line : styleText('gray', line)}`,
+	);
+}
+
 function printImportInfoWithIndent(info: EnhancedImportInfo, indent = 0) {
 	const indent_ = new Array(indent).fill('  ').join('');
 	console.log(
-		`${
-			indent_ + relative(root, info.importer)
-		}:${info.lineNumber}:${info.line}`,
+		`${indent_}${styleText('underline', relative(root, info.importer))}:${info.lineNumber}`,
 	);
+
+	let lastContextLine = info.lineNumber;
+	if (info.contextLineAfter) lastContextLine++;
+	const maxWidth = lastContextLine.toString().length;
+	if (info.contextLineBefore)
+		printCodeLine(
+			info.lineNumber - 1,
+			maxWidth,
+			info.contextLineBefore,
+			false,
+			indent,
+		);
+	printCodeLine(info.lineNumber, maxWidth, info.line, true, indent);
+	if (info.contextLineAfter)
+		printCodeLine(
+			info.lineNumber + 1,
+			maxWidth,
+			info.contextLineAfter,
+			false,
+			indent,
+		);
 }
 
 buildDependencyTreeAndDetectCycles(entryFile).then(({ cycles }) => {

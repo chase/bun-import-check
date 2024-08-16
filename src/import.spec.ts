@@ -101,4 +101,10 @@ describe('hasImport', () => {
 			),
 		).toBe(false);
 	});
+
+	test('handles multiline statements', () => {
+		expect(hasImport("} from 'module'", 'module')).toBe(true);
+		expect(hasImport("  } from 'module';", 'module')).toBe(true);
+		expect(hasImport("} from 'module'", 'other-module')).toBe(false);
+	});
 });
