@@ -151,6 +151,7 @@ function watchDirectories(
 	const watchers = new Set<ReturnType<typeof watch>>();
 	const watchedDirs = new Set<string>();
 
+  let once = false;
 	for (const filename of tree.keys()) {
 		const dir = dirname(filename);
 		if (!watchedDirs.has(dir)) {
@@ -158,6 +159,11 @@ function watchDirectories(
 				dir,
 				{ persistent: true },
 				(_eventType, changedFile) => {
+          if (once) {
+            watcher.close();
+            return;
+          }
+          once = true;
 					const fullPath = `${dir}/${changedFile}`;
 					if (tree.has(fullPath)) {
 						callback(fullPath);
